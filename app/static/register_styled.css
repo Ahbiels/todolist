@@ -54,14 +54,6 @@ form .input_container input{
     color: rgb(0, 0, 0);
 }
 
-form .input_container input:is(:-webkit-autofill, :autofill) {
-    background: rgba(255, 255, 255, 0.148);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px); /* Efeito de desfoque */
-    /* -webkit-box-shadow:0 0 0 10px rgb(255, 0, 0) inset;
-    -webkit-text-fill-color: #ffffff; */
-}
-
 form input[type=submit]{
     background-color: transparent;
     border: none;
@@ -78,8 +70,8 @@ form input[type=submit]:hover{
     background-color: rgb(212, 212, 157);
     color: black;
 }
-.terms{
-    font-size: 0.8rem;
+span{
+    font-size: 0.9rem;
     color: rgb(103, 103, 103);
     cursor:pointer;
 }
