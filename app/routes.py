@@ -26,12 +26,44 @@ class RegisterUser:
         except Error as err:
             flash("This email already exist")
         
+class AuthenticateUser:
+    def __init__(self, email, password):
+        self.__email = email
+        self.__password = password
+        self.__userData = None
+    
+    def verifyIfUserExist(self):
+        query = "SELECT password FROM users WHERE email = %s"
+        cursor.execute(query, (self.__email,))
+        results = cursor.fetchall()
+        try:
+            if results:
+                self.__userData = results
+                return self.__verifyPassword()
+            else:
+                raise Error()
+        except Error as err:
+            flash("User do not exist")
+            
+    def __verifyPassword(self):
+        password_hash = "".join(*self.__userData)
+        verify_encrypted_password = sha256_crypt.verify(self.__password, password_hash)
+        if verify_encrypted_password:
+            return True
+        else:
+            raise Error()
         
 
 routes_bp = Blueprint('routes_bp', __name__, template_folder='templates')
 
 @routes_bp.route("/login", methods=['GET', 'POST'])
 def login():
+    email = request.form.get("email")
+    password = request.form.get("password")
+    authenticate_user = AuthenticateUser(email, password)
+    if authenticate_user.verifyIfUserExist():
+        return render_template("home.html")
+    
     return render_template("login.html")
 
 
