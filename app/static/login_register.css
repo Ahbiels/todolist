@@ -8,7 +8,7 @@ body{
     background: linear-gradient(135deg, #f5f5dc, #e0d9c6, #d4bfa3, #c9b99a, #b5a897);
     height: 100vh;
 }
-.container{
+.container_{
     position: absolute;
     top: 50%;
     left: 50%;
@@ -19,11 +19,11 @@ body{
     width: 40rem;
 }
 
-p{
+.container_ p{
     color: rgb(103, 103, 103);
-    margin-bottom: 2.5rem;   
+    margin-bottom: 1rem;   
 }
-h1{
+.container_ h1{
     margin-bottom: 1rem;
 }
 
@@ -52,6 +52,7 @@ form .input_container input{
     background-color: transparent;
     border: none;
     color: rgb(0, 0, 0);
+    font-size: 15px;
 }
 
 form input[type=submit]{
@@ -61,7 +62,7 @@ form input[type=submit]{
     border: .1px solid black;
     border-radius: 50px;
     font-size: 1rem;
-    padding: 15px 0px;
+    padding: 10px 0px;
     margin: 30px 0px 20px 0px;
     transition: 0.2s;
 }
@@ -74,4 +75,15 @@ span{
     font-size: 0.9rem;
     color: rgb(103, 103, 103);
     cursor:pointer;
+}
+
+.flash_alerta{
+    background-color: rgb(246, 66, 66);
+    border-radius: 50px;
+    position:absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -10%);
+    padding: 10px 10rem;
+    color: white;
 }

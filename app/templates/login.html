@@ -1,32 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="../static/register_styled.css"> -->
-     <link rel="stylesheet" href="{{ url_for('static', filename='register_styled.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <title>Document</title>
-</head>
-<body>
-    <div class="container">
-        <h1 class="title">Welcome Back</h1>
-        <form action="/login" method="post" autocomplete="off">
-            <div class="input_container">
-                <label for="email">
-                    <i class="fa-solid fa-envelope"></i>
-                </label>
-                <input type="email" name="email" placeholder="E-mail" class="email" required>
-            </div>
-            <div class="input_container">
-                <label for="password">
-                    <i class="fa-solid fa-lock"></i>
-                </label>
-                <input type="password" name="password" placeholder="Password" class="password" required>
-            </div>
-            <input type="submit" value="Login">
-        </form>
-        <span>Don't have an account? <a href="/register">Register</a></span>
-    </div>
-</body>
-</html>
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="container_">
+    <h1>Welcome Back</h1>
+    <form action="/login" method="post" autocomplete="off">
+        <div class="input_container">
+            <label for="email">
+                <i class="fa-solid fa-envelope"></i>
+            </label>
+            <input type="email" name="email" placeholder="E-mail" class="email" required>
+        </div>
+        <div class="input_container">
+            <label for="password">
+                <i class="fa-solid fa-lock"></i>
+            </label>
+            <input type="password" name="password" placeholder="Password" class="password" required>
+        </div>
+        <input type="submit" value="Login">
+    </form>
+    <span>Don't have an account? <a href="/register">Register</a></span>
+</div>
+
+{% endblock %}
