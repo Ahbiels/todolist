@@ -77,13 +77,19 @@ span{
     cursor:pointer;
 }
 
-.flash_alerta{
-    background-color: rgb(246, 66, 66);
-    border-radius: 50px;
-    position:absolute;
-    top: 10%;
-    left: 50%;
-    transform: translate(-50%, -10%);
-    padding: 10px 10rem;
-    color: white;
+.progress {
+    position: relative;
+    width: 100%;
+    height: 5px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-bar {
+    width: 0;
+    height: 100%;
+    background-color: #dc3545;
+    transition: width 5s linear;
 }

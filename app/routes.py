@@ -6,23 +6,25 @@ class RegisterUser:
     def __init__(self, username, email, password) -> None:
         self._username = username
         self.__email = email
-        self.__password = sha256_crypt.hash(password)
+        self.__password = sha256_crypt.hash(password) if password is not None else None
     
     def save_user(self):
         validate_email = "SELECT * FROM users WHERE email = %s"
         cursor.execute(validate_email, (self.__email,))
         results = cursor.fetchall()
-        if not results:
-            try:
-                query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s);"
-                values = (self._username, self.__email, self.__password)
-                cursor.execute(query, values)
-                conn.commit()
-            except Error as err:
-                print(err)
-                flash("This email already existe")
-        else:
-            flash("This email already existe")
+        try:
+            if not results:
+                try:
+                    query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s);"
+                    values = (self._username, self.__email, self.__password)
+                    cursor.execute(query, values)
+                    conn.commit()
+                except Error as err:
+                    print(err)
+            else:
+                raise Error()
+        except Error as err:
+            flash("This email already exist")
         
         
 
@@ -40,10 +42,10 @@ def register():
     password = request.form.get("password")
     confirm_password = request.form.get("confirm_password")
     
-    if password == confirm_password and password != None:
+    if password == confirm_password:
         register_user = RegisterUser(username, email, password)
         register_user.save_user()
     else:
-        flash("As senhas nao sao iguais")
+        flash("The passwords are not the same")
         
     return render_template("register.html")
