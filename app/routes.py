@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, request, flash
+from flask import render_template, Blueprint, request, flash, url_for, redirect, session
 from passlib.hash import sha256_crypt
 from conn import cursor, conn, Error
 
@@ -9,21 +9,24 @@ class RegisterUser:
         self.__password = sha256_crypt.hash(password) if password is not None else None
     
     def save_user(self):
-        validate_email = "SELECT * FROM users WHERE email = %s"
-        cursor.execute(validate_email, (self.__email,))
-        results = cursor.fetchall()
         try:
-            if not results:
-                try:
-                    query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s);"
-                    values = (self._username, self.__email, self.__password)
-                    cursor.execute(query, values)
-                    conn.commit()
-                except Error as err:
-                    print(err)
-            else:
-                raise Error()
+            validate_email = "SELECT * FROM users WHERE email = %s"
+            cursor.execute(validate_email, (self.__email,))
+            results = cursor.fetchall()
         except Error as err:
+            print(err)
+            # criar uma página de error depois
+        if not results:
+            try:
+                query = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s);"
+                values = (self._username, self.__email, self.__password)
+                cursor.execute(query, values)
+                conn.commit()
+                return True
+            except Error as err:
+                print(err)
+                # criar uma página de error depois
+        else:
             flash("This email already exist")
         
 class AuthenticateUser:
@@ -33,51 +36,72 @@ class AuthenticateUser:
         self.__userData = None
     
     def verifyIfUserExist(self):
-        query = "SELECT password FROM users WHERE email = %s"
-        cursor.execute(query, (self.__email,))
-        results = cursor.fetchall()
         try:
-            if results:
-                self.__userData = results
-                return self.__verifyPassword()
-            else:
-                raise Error()
+            query = "SELECT * FROM users WHERE email = %s"
+            cursor.execute(query, (self.__email,))
+            results = cursor.fetchall()
+            print(results)
         except Error as err:
-            flash("User do not exist")
+            print(err)
+            # criar uma página de error depois
+        if results:
+            print(results)
+            results_data = [
+                {
+                    "id": id, 
+                    "name": name,
+                    "email": email,
+                    "password": password
+                }
+                for id, name, email, password in results
+            ]
+            self.__userData = results_data
+            return self.__verifyPassword()
+        else:
+            flash("User do not exist1")
+            
             
     def __verifyPassword(self):
-        password_hash = "".join(*self.__userData)
-        verify_encrypted_password = sha256_crypt.verify(self.__password, password_hash)
+        password_encrypted = self.__userData[0]["password"]
+        verify_encrypted_password = sha256_crypt.verify(self.__password, password_encrypted)
+        print(verify_encrypted_password)
         if verify_encrypted_password:
             return True
         else:
-            raise Error()
+            flash("User do not exist2")
         
 
 routes_bp = Blueprint('routes_bp', __name__, template_folder='templates')
 
 @routes_bp.route("/login", methods=['GET', 'POST'])
 def login():
-    email = request.form.get("email")
-    password = request.form.get("password")
-    authenticate_user = AuthenticateUser(email, password)
-    if authenticate_user.verifyIfUserExist():
-        return render_template("home.html")
+    if request.form:
+        email = request.form.get("email")
+        password = request.form.get("password")
+        authenticate_user = AuthenticateUser(email, password)
+        if authenticate_user.verifyIfUserExist():
+            return redirect(url_for("routes_bp.home"))
     
     return render_template("login.html")
 
 
 @routes_bp.route("/register", methods=['GET', 'POST'])
 def register():
-    username = request.form.get("username")
-    email = request.form.get("email")
-    password = request.form.get("password")
-    confirm_password = request.form.get("confirm_password")
-    
-    if password == confirm_password:
-        register_user = RegisterUser(username, email, password)
-        register_user.save_user()
-    else:
-        flash("The passwords are not the same")
+    if request.form:
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
         
+        if password == confirm_password:
+            register_user = RegisterUser(username, email, password)
+            if register_user.save_user():
+                return redirect(url_for("routes_bp.login"))
+        else:
+            flash("The passwords are not the same")
+            
     return render_template("register.html")
+
+@routes_bp.route("/home", methods=['GET'])
+def home():
+    return render_template("home.html")
