@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, request, flash, url_for, redirect, session
+from flask import render_template, Blueprint, request, flash, url_for, redirect, session, make_response
 from passlib.hash import sha256_crypt
 from conn import cursor, conn, Error
 
@@ -66,10 +66,15 @@ class AuthenticateUser:
         verify_encrypted_password = sha256_crypt.verify(self.__password, password_encrypted)
         print(verify_encrypted_password)
         if verify_encrypted_password:
+            response = make_response("dados")
+            response.set_cookie('auth_user', 'user123')
+            session.permanent = True
+            session["authenticate"] = True
+            session["id"] = self.__userData[0]["id"]
+            session["name"] = self.__userData[0]["name"]
             return True
         else:
-            flash("User do not exist2")
-        
+            flash("User do not exist")
 
 routes_bp = Blueprint('routes_bp', __name__, template_folder='templates')
 
@@ -79,7 +84,8 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         authenticate_user = AuthenticateUser(email, password)
-        if authenticate_user.verifyIfUserExist():
+        authenticate_user.verifyIfUserExist()
+        if session["authenticate"]:
             return redirect(url_for("routes_bp.home"))
     
     return render_template("login.html")
@@ -102,6 +108,15 @@ def register():
             
     return render_template("register.html")
 
+@routes_bp.route("/")
+def index():
+    return redirect(url_for("routes_bp.login"))
+
 @routes_bp.route("/home", methods=['GET'])
 def home():
-    return render_template("home.html")
+    print(session)
+    if session:
+        return render_template("home.html")
+    else:
+        flash("You are not authenticated")
+        return redirect(url_for("routes_bp.login"))
