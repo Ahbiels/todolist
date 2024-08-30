@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <title>TodoList</title>
+</head>
+<body>
+    <header>
+        <h2>Welcome, {{name}}</h2>
+        <form action="/logout">
+            <button type="submit">Logout</button>
+        </form>
+    </header>
+
+    <div class="container_todolist">
+        <h2>Todo List</h2>
+        <form action="/create_task" method="post">
+            <input type="text" name="task" id="task" placeholder="Create Task">
+            <button type="submit">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </form>
+
+        <div class="container_tasks">
+            {% for all_task in all_tasks %}
+                <div class="tasks">
+                    <p>{{all_task.task}}</p>
+                    <form action="/edit_task">
+                        <button type="submit">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('routes_bp.delete_task', id_task=all_task.id) }}" method="POST">
+                        <button type="submit">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+    
+</body>
+</html>

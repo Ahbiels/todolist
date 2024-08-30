@@ -6,7 +6,7 @@ from datetime import timedelta
 def creatApp():
     app = Flask(__name__, template_folder="templates")
     app.secret_key = os.urandom(12)
-    app.permanent_session_lifetime = timedelta(seconds=10)
+    app.permanent_session_lifetime = timedelta(minutes=2)
     app.folder_static = "static"
     return app
 

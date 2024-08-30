@@ -1,6 +1,7 @@
 from flask import render_template, Blueprint, request, flash, url_for, redirect, session, make_response
 from passlib.hash import sha256_crypt
 from conn import cursor, conn, Error
+from todolist import TodoList
 
 class RegisterUser:
     def __init__(self, username, email, password) -> None:
@@ -58,7 +59,7 @@ class AuthenticateUser:
             self.__userData = results_data
             return self.__verifyPassword()
         else:
-            flash("User do not exist1")
+            flash("User do not exist")
             
             
     def __verifyPassword(self):
@@ -66,8 +67,6 @@ class AuthenticateUser:
         verify_encrypted_password = sha256_crypt.verify(self.__password, password_encrypted)
         print(verify_encrypted_password)
         if verify_encrypted_password:
-            response = make_response("dados")
-            response.set_cookie('auth_user', 'user123')
             session.permanent = True
             session["authenticate"] = True
             session["id"] = self.__userData[0]["id"]
@@ -85,10 +84,10 @@ def login():
         password = request.form.get("password")
         authenticate_user = AuthenticateUser(email, password)
         authenticate_user.verifyIfUserExist()
-        if session["authenticate"]:
+        if session.get("authenticate"):
             return redirect(url_for("routes_bp.home"))
     
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
 
 @routes_bp.route("/register", methods=['GET', 'POST'])
@@ -106,7 +105,7 @@ def register():
         else:
             flash("The passwords are not the same")
             
-    return render_template("register.html")
+    return render_template("auth/register.html")
 
 @routes_bp.route("/")
 def index():
@@ -114,9 +113,37 @@ def index():
 
 @routes_bp.route("/home", methods=['GET'])
 def home():
-    print(session)
     if session:
-        return render_template("home.html")
+        allTasks = TodoList.all_task_by_user(session["id"])
+        name_user = session["name"]
+        return render_template("home/index.html", all_tasks = allTasks, name = name_user)
     else:
         flash("You are not authenticated")
         return redirect(url_for("routes_bp.login"))
+    
+@routes_bp.route("/create_task", methods=['POST'])
+def createTask():
+    if session:
+        TodoList.set_task(session["id"], request.form.get("task"))
+    else:
+        flash("You are not authenticated")
+        return redirect(url_for("routes_bp.login"))
+        
+    return redirect(url_for("routes_bp.home"))
+
+@routes_bp.route("/logout", methods=['GET'])
+def logout():
+    session.clear()
+    flash('You have been logged out')
+    return redirect(url_for("routes_bp.login"))
+
+# delete_task
+@routes_bp.route("/<int:id_task>/delete_task", methods=['POST'])
+def delete_task(id_task):
+    if session:
+        TodoList.delete_task(id_task)
+    else:
+        flash("You are not authenticated")
+        return redirect(url_for("routes_bp.login"))
+        
+    return redirect(url_for("routes_bp.home"))
